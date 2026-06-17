@@ -786,7 +786,6 @@ elif selected == "Ask My AI":
                         "I was unable to connect to the AI backend right now. "
                         f"Error: {str(e)[:120]}"
                     )
-                st.write(answer)
                 st.session_state.messages.append({"role": "assistant", "content": answer})
 
     # Clear chat button
