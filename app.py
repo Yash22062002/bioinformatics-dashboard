@@ -699,11 +699,11 @@ elif selected == "Ask My AI":
     )
 
     # Check for API key
-    api_key = st.secrets.get("GEMINI_API_KEY", "")
+    api_key = st.secrets.get("API_KEY", "")
     if not api_key:
         st.warning(
             "**API key not configured.** "
-            "Add `GEMINI_API_KEY = 'your-key-here'` to your Streamlit secrets "
+            "Add `API_KEY = 'your-key-here'` to your Streamlit secrets "
             "(Settings → Secrets in the Community Cloud dashboard) to enable the chatbot."
         )
         st.info(
