@@ -203,8 +203,9 @@ and clinical research associate roles across Canada (GTA preferred, remote consi
 Available immediately. Valid Canadian work authorisation.
 
 === CONTACT ===
-LinkedIn: linkedin.com/in/yourprofile   (ask Yash to confirm exact URL)
-GitHub: github.com/yashpatel            (ask Yash to confirm exact username)
+LinkedIn: https://www.linkedin.com/in/yash-patel-network/
+GitHub: https://github.com/Yash22062002
+Email: yp8287@gmail.com
 Location: Toronto, Ontario, Greater Toronto Area
 """
 
