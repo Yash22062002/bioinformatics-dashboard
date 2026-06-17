@@ -220,99 +220,116 @@ components.html("""
 const doc = window.parent.document;
 
 
-// Remove old button completely
-const old = doc.getElementById("yash-chat-bubble");
+// Inject CSS only once
 
-if(old){
-    old.remove();
+if(!doc.getElementById("yash-chat-style")){
+
+    const style = doc.createElement("style");
+
+    style.id="yash-chat-style";
+
+    style.innerHTML = `
+
+    #yash-chat-bubble {
+
+        position:fixed;
+
+        bottom:2rem;
+
+        right:2rem;
+
+        width:58px;
+
+        height:58px;
+
+        border-radius:50%;
+
+        border:none;
+
+        cursor:pointer;
+
+        font-size:1.5rem;
+
+        z-index:999999;
+
+        background:linear-gradient(135deg,#00C9A7,#845EC2);
+
+        box-shadow:0 4px 20px rgba(0,201,167,.45);
+
+    }
+
+
+    #yash-chat-bubble:hover{
+
+        transform:scale(1.1);
+
+    }
+
+    `;
+
+    doc.head.appendChild(style);
+
 }
 
 
-// CSS
-const style = doc.createElement("style");
 
-style.innerHTML = `
+// Create button only once
 
-#yash-chat-bubble {
+if(!doc.getElementById("yash-chat-bubble")){
 
-position:fixed;
 
-bottom:2rem;
+    const btn = doc.createElement("button");
 
-right:2rem;
+    btn.id="yash-chat-bubble";
 
-width:58px;
+    btn.innerHTML="🤖";
 
-height:58px;
 
-border-radius:50%;
-
-border:none;
-
-cursor:pointer;
-
-font-size:1.5rem;
-
-z-index:999999;
-
-background:linear-gradient(135deg,#00C9A7,#845EC2);
-
-box-shadow:
-0 4px 20px rgba(0,201,167,.45);
-
-transition:.2s;
+    doc.body.appendChild(btn);
 
 }
 
 
-#yash-chat-bubble:hover{
 
-transform:scale(1.12);
+// Remove previous listener if exists
+
+if(!doc.body.dataset.chatListener){
+
+
+    doc.body.addEventListener(
+        "click",
+        function(e){
+
+
+            if(e.target.id==="yash-chat-bubble"){
+
+
+                const url = new URL(
+                    window.parent.location.href
+                );
+
+
+                url.searchParams.set(
+                    "page",
+                    "chat"
+                );
+
+
+                window.parent.location.href =
+                    url.toString();
+
+
+            }
+
+
+        }
+    );
+
+
+    doc.body.dataset.chatListener="true";
+
 
 }
-
-`;
-
-doc.head.appendChild(style);
-
-
-
-// Create button
-
-const button = doc.createElement("button");
-
-button.id="yash-chat-bubble";
-
-button.innerHTML="🤖";
-
-
-
-// CLICK EVENT
-
-button.onclick=function(){
-
-
-const url = new URL(window.parent.location.href);
-
-
-// open AI page
-
-url.searchParams.set(
-"page",
-"chat"
-);
-
-
-// navigate
-
-window.parent.location.href=url.toString();
-
-
-};
-
-
-
-doc.body.appendChild(button);
 
 
 
