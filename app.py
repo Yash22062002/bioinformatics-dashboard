@@ -224,7 +224,7 @@ _system  = SYSTEM_PROMPT.replace("\\", "").replace("`", "'").replace('"', "'").r
   // Persist chat history across page changes
   if (!win._yashHistory) win._yashHistory = [];
 
-  // ── Inject styles once ───────────────────────────────────────────────────
+  // Inject styles once ───────────────────────────────────────────────────
   if (!par.getElementById('yash-chat-styles')) {{
     var style    = par.createElement('style');
     style.id     = 'yash-chat-styles';
