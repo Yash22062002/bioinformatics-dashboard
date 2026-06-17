@@ -764,12 +764,12 @@ elif selected == "Ask My AI":
                         base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
                     )
                     response = client.chat.completions.create(
-                        model="gemini-2.0-flash",
-                        max_tokens=500,
-                        messages=[
-                            {"role": "system", "content": SYSTEM_PROMPT},
-                            *st.session_state.messages,
-                        ],
+    model="gemini-2.0-flash",
+    messages=[
+        {"role": "system", "content": SYSTEM_PROMPT},
+        *st.session_state.messages,
+    ],
+    stream=True,
                     )
                     answer = response.choices[0].message.content
                 except Exception as e:
