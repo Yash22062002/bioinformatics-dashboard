@@ -205,7 +205,7 @@ Available immediately. Valid Canadian work authorisation.
 === CONTACT ===
 LinkedIn: linkedin.com/in/yourprofile   (ask Yash to confirm exact URL)
 GitHub: github.com/yashpatel            (ask Yash to confirm exact username)
-Location: Whitby, Ontario, Greater Toronto Area
+Location: Toronto, Ontario, Greater Toronto Area
 """
 
 
@@ -246,7 +246,7 @@ if selected == "Home":
         )
         st.markdown(ABOUT_ME)
 
-        st.markdown("**Currently based in:** Whitby, Ontario (Greater Toronto Area)")
+        st.markdown("**Currently based in:** Toronto, Ontario (Greater Toronto Area)")
         st.markdown("**Open to:** Bioinformatics Analyst · Computational Biology · Pharma QA · Remote roles")
 
         st.markdown("<br>", unsafe_allow_html=True)
