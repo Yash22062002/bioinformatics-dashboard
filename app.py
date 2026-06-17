@@ -211,41 +211,70 @@ Location: Toronto, Ontario, Greater Toronto Area
 """
 
 # ── FLOATING CHAT WIDGET ─────────────────────────────────────────────────────
-# ── FLOATING CHAT WIDGET ─────────────────────────────────────────────────────
 components.html("""
 <script>
 (function() {
-  var par = window.parent.document;
 
-  if (par.getElementById('yash-chat-bubble')) return;
+  const doc = window.parent.document;
 
-  var style = par.createElement('style');
-  style.textContent = `
+  if (doc.getElementById("yash-chat-bubble")) {
+      return;
+  }
+
+  const style = doc.createElement("style");
+  style.innerHTML = `
     #yash-chat-bubble {
-      position: fixed; bottom: 2rem; right: 2rem;
-      width: 58px; height: 58px;
-      background: linear-gradient(135deg, #00C9A7, #845EC2);
-      border-radius: 50%; border: none; cursor: pointer;
-      font-size: 1.5rem; z-index: 99999;
-      box-shadow: 0 4px 20px rgba(0,201,167,0.45);
-      transition: transform 0.2s;
-      display: flex; align-items: center; justify-content: center;
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 58px;
+      height: 58px;
+      background: linear-gradient(135deg,#00C9A7,#845EC2);
+      border-radius:50%;
+      border:none;
+      cursor:pointer;
+      font-size:1.5rem;
+      z-index:999999;
+      box-shadow:0 4px 20px rgba(0,201,167,.45);
     }
-    #yash-chat-bubble:hover { transform: scale(1.1); }
-  `;
-  par.head.appendChild(style);
 
-  var bubble = par.createElement('button');
-  bubble.id = 'yash-chat-bubble';
-  bubble.innerHTML = '🤖';
-  bubble.onclick = function() {
-    var url = window.parent.location.href.split('?')[0];
-    window.parent.location.href = url + '?page=chat';
+    #yash-chat-bubble:hover {
+      transform:scale(1.1);
+    }
+  `;
+
+  doc.head.appendChild(style);
+
+
+  const btn = doc.createElement("button");
+  btn.id="yash-chat-bubble";
+  btn.innerHTML="🤖";
+
+
+  btn.onclick=function(){
+
+      // use Streamlit query params properly
+      const current = new URL(window.parent.location.href);
+
+      current.searchParams.set("page","chat");
+
+      window.parent.history.pushState(
+          {},
+          "",
+          current
+      );
+
+      window.parent.location.reload();
+
   };
-  par.body.appendChild(bubble);
+
+
+  doc.body.appendChild(btn);
+
+
 })();
 </script>
-""", height=0, scrolling=False)
+""", height=0)
 # ══════════════════════════════════════════════════════════════════════════════
 #  NAVIGATION
 # ══════════════════════════════════════════════════════════════════════════════
