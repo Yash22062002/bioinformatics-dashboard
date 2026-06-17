@@ -211,6 +211,7 @@ Location: Toronto, Ontario, Greater Toronto Area
 """
 
 # ── FLOATING CHAT WIDGET ─────────────────────────────────────────────────────
+# ── FLOATING CHAT WIDGET ─────────────────────────────────────────────────────
 components.html("""
 <script>
 (function() {
@@ -238,22 +239,8 @@ components.html("""
   bubble.id = 'yash-chat-bubble';
   bubble.innerHTML = '🤖';
   bubble.onclick = function() {
-    var links = par.querySelectorAll('li[data-testid="stSidebarNavLink"], button[kind="pill"]');
-    var navBtns = par.querySelectorAll('button[data-testid="baseButton-pill"]');
-    for (var i = 0; i < navBtns.length; i++) {
-      if (navBtns[i].innerText.includes('Ask My AI')) {
-        navBtns[i].click();
-        return;
-      }
-    }
-    window.parent.location.hash = '';
-    var allBtns = par.querySelectorAll('button');
-    for (var j = 0; j < allBtns.length; j++) {
-      if (allBtns[j].innerText.trim() === 'Ask My AI') {
-        allBtns[j].click();
-        return;
-      }
-    }
+    var url = window.parent.location.href.split('?')[0];
+    window.parent.location.href = url + '?page=chat';
   };
   par.body.appendChild(bubble);
 })();
@@ -263,11 +250,16 @@ components.html("""
 #  NAVIGATION
 # ══════════════════════════════════════════════════════════════════════════════
 
+# Navigate to Ask My AI if the floating button was clicked
+page_param = st.query_params.get("page", "")
+default_idx = 4 if page_param == "chat" else 0
+
 selected = option_menu(
     menu_title=None,
     options=["Home", "Projects", "Skills", "GitHub", "Ask My AI"],
     icons=["house-fill", "code-slash", "bar-chart-fill", "github", "robot"],
     orientation="horizontal",
+    default_index=default_idx,
     styles={
         "container":    {"padding": "0.4rem 0", "background-color": "#1A1D2E",
                          "border-radius": "12px", "margin-bottom": "2rem"},
