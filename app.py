@@ -138,8 +138,8 @@ html, body, [class*="css"] {
 #  CONSTANTS — UPDATE THESE WITH YOUR REAL INFO
 # ══════════════════════════════════════════════════════════════════════════════
 
-GITHUB_USERNAME = "yashpatel"        # ← Replace with your actual GitHub username
-LINKEDIN_URL    = "https://linkedin.com/in/yourprofile"   # ← Replace
+GITHUB_USERNAME = "Yash22062002"        # ← Replace with your actual GitHub username
+LINKEDIN_URL    = "https://www.linkedin.com/in/yash-patel-network/"   # ← Replace
 RESUME_URL      = ""                 # ← Optional: link to hosted PDF resume
 
 ABOUT_ME = """
@@ -265,21 +265,7 @@ if selected == "Home":
     with col2:
         st.markdown("<br><br>", unsafe_allow_html=True)
         # Profile placeholder — replace with st.image("photo.jpg") once you add a headshot
-        st.markdown(
-            """
-            <div style="
-                width:180px; height:180px;
-                background: linear-gradient(135deg,#00C9A7,#845EC2);
-                border-radius: 50%;
-                display: flex; align-items: center; justify-content: center;
-                font-size: 4rem; margin: 0 auto;
-            ">🧬</div>
-            <p style="text-align:center;color:#718096;font-size:0.8rem;margin-top:0.5rem;">
-                Add your photo: st.image("photo.jpg")
-            </p>
-            """,
-            unsafe_allow_html=True,
-        )
+        st.image("yash.jpg", width=180)
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
 
