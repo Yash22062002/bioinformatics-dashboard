@@ -326,8 +326,13 @@ doc.body.appendChild(button);
 # ══════════════════════════════════════════════════════════════════════════════
 
 # Navigate to Ask My AI if the floating button was clicked
+# Navigate to Ask My AI only when button is clicked
 page_param = st.query_params.get("page", "")
-default_idx = 4 if page_param == "chat" else 0
+
+if page_param == "chat":
+    default_idx = 4
+else:
+    default_idx = 0
 
 selected = option_menu(
     menu_title=None,
@@ -346,6 +351,8 @@ selected = option_menu(
     },
 )
 
+if page_param == "chat":
+    st.query_params.clear()
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  PAGE 1 — HOME
