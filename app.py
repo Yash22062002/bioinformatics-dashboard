@@ -210,69 +210,115 @@ Email: yp8287@gmail.com
 Location: Toronto, Ontario, Greater Toronto Area
 """
 
-# ── FLOATING CHAT WIDGET ─────────────────────────────────────────────────────
+# ── FLOATING CHAT WIDGET ───────────────────────────────────────────────
+
 components.html("""
 <script>
-(function() {
 
-  const doc = window.parent.document;
+(function(){
 
-  if (doc.getElementById("yash-chat-bubble")) {
-      return;
-  }
-
-  const style = doc.createElement("style");
-  style.innerHTML = `
-    #yash-chat-bubble {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      width: 58px;
-      height: 58px;
-      background: linear-gradient(135deg,#00C9A7,#845EC2);
-      border-radius:50%;
-      border:none;
-      cursor:pointer;
-      font-size:1.5rem;
-      z-index:999999;
-      box-shadow:0 4px 20px rgba(0,201,167,.45);
-    }
-
-    #yash-chat-bubble:hover {
-      transform:scale(1.1);
-    }
-  `;
-
-  doc.head.appendChild(style);
+const doc = window.parent.document;
 
 
-  const btn = doc.createElement("button");
-  btn.id="yash-chat-bubble";
-  btn.innerHTML="🤖";
+// Remove old button completely
+const old = doc.getElementById("yash-chat-bubble");
+
+if(old){
+    old.remove();
+}
 
 
-  btn.onclick=function(){
+// CSS
+const style = doc.createElement("style");
 
-      // use Streamlit query params properly
-      const current = new URL(window.parent.location.href);
+style.innerHTML = `
 
-      current.searchParams.set("page","chat");
+#yash-chat-bubble {
 
-      window.parent.history.pushState(
-          {},
-          "",
-          current
-      );
+position:fixed;
 
-      window.parent.location.reload();
+bottom:2rem;
 
-  };
+right:2rem;
+
+width:58px;
+
+height:58px;
+
+border-radius:50%;
+
+border:none;
+
+cursor:pointer;
+
+font-size:1.5rem;
+
+z-index:999999;
+
+background:linear-gradient(135deg,#00C9A7,#845EC2);
+
+box-shadow:
+0 4px 20px rgba(0,201,167,.45);
+
+transition:.2s;
+
+}
 
 
-  doc.body.appendChild(btn);
+#yash-chat-bubble:hover{
+
+transform:scale(1.12);
+
+}
+
+`;
+
+doc.head.appendChild(style);
+
+
+
+// Create button
+
+const button = doc.createElement("button");
+
+button.id="yash-chat-bubble";
+
+button.innerHTML="🤖";
+
+
+
+// CLICK EVENT
+
+button.onclick=function(){
+
+
+const url = new URL(window.parent.location.href);
+
+
+// open AI page
+
+url.searchParams.set(
+"page",
+"chat"
+);
+
+
+// navigate
+
+window.parent.location.href=url.toString();
+
+
+};
+
+
+
+doc.body.appendChild(button);
+
 
 
 })();
+
+
 </script>
 """, height=0)
 # ══════════════════════════════════════════════════════════════════════════════
