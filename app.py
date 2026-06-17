@@ -249,20 +249,7 @@ if selected == "Home":
 
         st.markdown("**Currently based in:** Toronto, Ontario (Greater Toronto Area)")
         st.markdown("**Open to:** Bioinformatics Analyst · Computational Biology · Pharma QA · Remote roles")
-
-        st.markdown("<br>", unsafe_allow_html=True)
-        btn_col1, btn_col2, btn_col3 = st.columns(3)
-        with btn_col1:
-            st.link_button("🔗 LinkedIn", LINKEDIN_URL, use_container_width=True)
-        with btn_col2:
-            st.link_button(
-                "💻 GitHub",
-                f"https://github.com/{GITHUB_USERNAME}",
-                use_container_width=True,
-            )
-        with btn_col3:
-            st.link_button("🤖 Ask My AI", "#", use_container_width=True)
-
+        
     with col2:
         st.markdown("<br><br>", unsafe_allow_html=True)
         # Profile placeholder — replace with st.image("photo.jpg") once you add a headshot
