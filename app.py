@@ -212,126 +212,131 @@ Location: Toronto, Ontario, Greater Toronto Area
 
 # ── FLOATING CHAT WIDGET ─────────────────────────────────────────────────────
 _api_key = st.secrets.get("API_KEY", "")
-_system  = SYSTEM_PROMPT.replace("`", "'").replace('"', "'").replace("\n", "\\n")
+_system  = SYSTEM_PROMPT.replace("\\", "").replace("`", "'").replace('"', "'").replace("\n", " ")
 
 components.html(f"""
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-  body {{ margin: 0; background: transparent; font-family: 'Inter', sans-serif; }}
+<script>
+(function() {{
+  var parent = window.parent.document;
 
-  #chat-bubble {{
-      position: fixed; bottom: 1.5rem; right: 1.5rem;
+  // Avoid duplicate injection on reruns
+  if (parent.getElementById('yash-chat-bubble')) return;
+
+  // ── Styles ────────────────────────────────────────────────────────────────
+  var style = parent.createElement('style');
+  style.textContent = `
+    #yash-chat-bubble {{
+      position: fixed; bottom: 2rem; right: 2rem;
       width: 58px; height: 58px;
       background: linear-gradient(135deg, #00C9A7, #845EC2);
       border-radius: 50%; border: none; cursor: pointer;
-      font-size: 1.5rem; display: flex; align-items: center;
-      justify-content: center; z-index: 9999;
+      font-size: 1.5rem; z-index: 99999;
       box-shadow: 0 4px 20px rgba(0,201,167,0.45);
       transition: transform 0.2s;
-  }}
-  #chat-bubble:hover {{ transform: scale(1.12); }}
-
-  #chat-panel {{
-      position: fixed; bottom: 5.5rem; right: 1.5rem;
+      display: flex; align-items: center; justify-content: center;
+    }}
+    #yash-chat-bubble:hover {{ transform: scale(1.1); }}
+    #yash-chat-panel {{
+      position: fixed; bottom: 5.5rem; right: 2rem;
       width: 320px; height: 460px;
       background: #1A1D2E; border: 1px solid #2D3047;
-      border-radius: 16px; z-index: 9998;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.55);
+      border-radius: 16px; z-index: 99998;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
       display: none; flex-direction: column; overflow: hidden;
-  }}
-  #chat-panel.open {{ display: flex; }}
-
-  #chat-header {{
+      font-family: Inter, sans-serif;
+    }}
+    #yash-chat-panel.open {{ display: flex !important; }}
+    #yash-chat-header {{
       background: linear-gradient(135deg, #00C9A7, #845EC2);
       padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem;
       color: #0F1117; display: flex;
       justify-content: space-between; align-items: center;
       flex-shrink: 0;
-  }}
-  #chat-close {{
+    }}
+    #yash-chat-close {{
       background: none; border: none; cursor: pointer;
       font-size: 1.1rem; font-weight: 700; color: #0F1117;
-  }}
-  #chat-messages {{
+    }}
+    #yash-chat-msgs {{
       flex: 1; overflow-y: auto; padding: 0.75rem;
       display: flex; flex-direction: column; gap: 0.5rem;
-  }}
-  .cmsg {{
+    }}
+    .ycmsg {{
       max-width: 88%; padding: 0.5rem 0.75rem;
-      border-radius: 12px; font-size: 0.82rem; line-height: 1.45;
-      word-wrap: break-word;
-  }}
-  .cmsg.user {{
+      border-radius: 12px; font-size: 0.82rem;
+      line-height: 1.5; word-wrap: break-word;
+    }}
+    .ycmsg.user {{
       background: rgba(0,201,167,0.18); color: #E8EAED;
       align-self: flex-end; border-bottom-right-radius: 3px;
-  }}
-  .cmsg.bot {{
+    }}
+    .ycmsg.bot {{
       background: #2D3047; color: #E8EAED;
       align-self: flex-start; border-bottom-left-radius: 3px;
-  }}
-  .cmsg.thinking {{
+    }}
+    .ycmsg.thinking {{
       background: #2D3047; color: #718096;
       align-self: flex-start; font-style: italic;
-  }}
-  #chat-footer {{
+    }}
+    #yash-chat-footer {{
       padding: 0.6rem; border-top: 1px solid #2D3047;
       display: flex; gap: 0.4rem; flex-shrink: 0;
-  }}
-  #chat-input {{
+    }}
+    #yash-chat-input {{
       flex: 1; background: #0F1117; border: 1px solid #2D3047;
       border-radius: 8px; color: #E8EAED;
       padding: 0.45rem 0.65rem; font-size: 0.82rem; outline: none;
-  }}
-  #chat-input:focus {{ border-color: #00C9A7; }}
-  #chat-send {{
+    }}
+    #yash-chat-input:focus {{ border-color: #00C9A7; }}
+    #yash-chat-send {{
       background: #00C9A7; border: none; border-radius: 8px;
       color: #0F1117; padding: 0.45rem 0.8rem;
       cursor: pointer; font-weight: 700; font-size: 1rem;
-  }}
-  #chat-send:hover {{ background: #00b896; }}
-</style>
-</head>
-<body>
-
-<button id="chat-bubble" onclick="toggleChat()">🤖</button>
-
-<div id="chat-panel">
-  <div id="chat-header">
-    <span>🧬 Ask Yash's AI</span>
-    <button id="chat-close" onclick="toggleChat()">✕</button>
-  </div>
-  <div id="chat-messages" id="msgs">
-    <div class="cmsg bot">
-      Hi! I am Yash's AI assistant. Ask me anything about his background, projects, or experience.
-    </div>
-  </div>
-  <div id="chat-footer">
-    <input id="chat-input" type="text"
-           placeholder="Ask a question..."
-           onkeydown="if(event.key==='Enter') sendMsg()"/>
-    <button id="chat-send" onclick="sendMsg()">➤</button>
-  </div>
-</div>
-
-<script>
-  var history = [];
-  var apiKey  = "{_api_key}";
-  var sysPmt  = "{_system}";
-
-  function toggleChat() {{
-    var panel = document.getElementById('chat-panel');
-    panel.classList.toggle('open');
-    if (panel.classList.contains('open')) {{
-      document.getElementById('chat-input').focus();
     }}
+    #yash-chat-send:hover {{ background: #00b896; }}
+  `;
+  parent.head.appendChild(style);
+
+  // ── HTML ──────────────────────────────────────────────────────────────────
+  var bubble = parent.createElement('button');
+  bubble.id        = 'yash-chat-bubble';
+  bubble.innerHTML = '🤖';
+  parent.body.appendChild(bubble);
+
+  var panel = parent.createElement('div');
+  panel.id        = 'yash-chat-panel';
+  panel.innerHTML = `
+    <div id="yash-chat-header">
+      <span>🧬 Ask Yash's AI</span>
+      <button id="yash-chat-close">✕</button>
+    </div>
+    <div id="yash-chat-msgs">
+      <div class="ycmsg bot">
+        Hi! I am Yash's AI assistant. Ask me anything about his background, projects, or experience.
+      </div>
+    </div>
+    <div id="yash-chat-footer">
+      <input id="yash-chat-input" type="text" placeholder="Ask a question..." />
+      <button id="yash-chat-send">➤</button>
+    </div>
+  `;
+  parent.body.appendChild(panel);
+
+  // ── Logic ─────────────────────────────────────────────────────────────────
+  var chatHistory = [];
+  var apiKey      = "{_api_key}";
+  var sysPrompt   = "{_system}";
+
+  function togglePanel() {{
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open'))
+      parent.getElementById('yash-chat-input').focus();
   }}
 
   function addMsg(role, text) {{
-    var box = document.getElementById('chat-messages');
-    var d   = document.createElement('div');
-    d.className  = 'cmsg ' + role;
+    var box = parent.getElementById('yash-chat-msgs');
+    var d   = parent.createElement('div');
+    d.className   = 'ycmsg ' + role;
     d.textContent = text;
     box.appendChild(d);
     box.scrollTop = box.scrollHeight;
@@ -339,15 +344,13 @@ components.html(f"""
   }}
 
   async function sendMsg() {{
-    var inp  = document.getElementById('chat-input');
+    var inp  = parent.getElementById('yash-chat-input');
     var text = inp.value.trim();
-    if (!text || !apiKey) return;
+    if (!text) return;
     inp.value = '';
-
     addMsg('user', text);
-    history.push({{role: 'user', content: text}});
+    chatHistory.push({{role:'user', content:text}});
     var thinking = addMsg('thinking', 'Thinking...');
-
     try {{
       var res = await fetch(
         'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
@@ -361,25 +364,31 @@ components.html(f"""
             model:      'gemini-2.0-flash',
             max_tokens: 400,
             messages:   [
-              {{role: 'system', content: sysPmt}},
-              ...history
+              {{role:'system', content: sysPrompt}},
+              ...chatHistory
             ]
           }})
         }}
       );
       var data   = await res.json();
       var answer = data.choices[0].message.content;
-      thinking.className   = 'cmsg bot';
+      thinking.className   = 'ycmsg bot';
       thinking.textContent = answer;
-      history.push({{role: 'assistant', content: answer}});
+      chatHistory.push({{role:'assistant', content:answer}});
     }} catch(e) {{
-      thinking.className   = 'cmsg bot';
+      thinking.className   = 'ycmsg bot';
       thinking.textContent = 'Could not connect right now. Please try again.';
     }}
   }}
+
+  bubble.addEventListener('click', togglePanel);
+  parent.getElementById('yash-chat-close').addEventListener('click', togglePanel);
+  parent.getElementById('yash-chat-send').addEventListener('click', sendMsg);
+  parent.getElementById('yash-chat-input').addEventListener('keydown', function(e) {{
+    if (e.key === 'Enter') sendMsg();
+  }});
+}})();
 </script>
-</body>
-</html>
 """, height=0, scrolling=False)
 # ══════════════════════════════════════════════════════════════════════════════
 #  NAVIGATION
