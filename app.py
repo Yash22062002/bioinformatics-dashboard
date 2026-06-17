@@ -764,26 +764,23 @@ elif selected == "Ask My AI":
                         base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
                     )
                     response = client.chat.completions.create(
-    model="gemini-2.5-flash",
-    messages=[
-        {"role": "system", "content": SYSTEM_PROMPT},
-        *st.session_state.messages,
-    ],
-    stream=True
-)
-
-placeholder = st.empty()
-full_response = ""
-
-for chunk in response:
-    if (
-        hasattr(chunk.choices[0], "delta")
-        and chunk.choices[0].delta.content
-    ):
-        full_response += chunk.choices[0].delta.content
-        placeholder.markdown(full_response)
-
-answer = full_response
+                        model="gemini-2.5-flash",
+                        messages=[
+                            {"role": "system", "content": SYSTEM_PROMPT},
+                            *st.session_state.messages,
+                        ],
+                        stream=True
+                    )
+                    placeholder = st.empty()
+                    full_response = ""
+                    for chunk in response:
+                        if (
+                            hasattr(chunk.choices[0], "delta")
+                            and chunk.choices[0].delta.content
+                        ):
+                            full_response += chunk.choices[0].delta.content
+                            placeholder.markdown(full_response)
+                    answer = full_response
                 except Exception as e:
                     answer = (
                         "I was unable to connect to the AI backend right now. "
