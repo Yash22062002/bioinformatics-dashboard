@@ -212,16 +212,17 @@ Location: Toronto, Ontario, Greater Toronto Area
 
 # ── FLOATING CHAT WIDGET ─────────────────────────────────────────────────────
 _api_key = st.secrets.get("API_KEY", "")
-_system  = SYSTEM_PROMPT.replace("\\", "").replace("`", "'").replace('"', "'").replace("\n", " ")
-
+import json
+_system_json = json.dumps(SYSTEM_PROMPT)
+_api_key_float = st.secrets.get("GROQ_API_KEY", "")
 components.html(f"""
 <script>
 (function() {{
   var par = window.parent.document;
   var win = window.parent;
 
-  var apiKey    = "{_api_key}";
-  var sysPrompt = "{_system}";
+  var apiKey    = "{_api_key_float}";
+  var sysPrompt = {_system_json};
 
   // Persist chat history across page changes
   if (!win._yashHistory) win._yashHistory = [];
@@ -359,7 +360,7 @@ components.html(f"""
     var thinking = win._yashAddMsg('thinking', 'Thinking...');
     try {{
       var res = await fetch(
-        'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+        'https://api.groq.com/openai/v1/chat/completions',
         {{
           method: 'POST',
           headers: {{
