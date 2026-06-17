@@ -764,7 +764,7 @@ elif selected == "Ask My AI":
                         base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
                     )
                     response = client.chat.completions.create(
-                              model="gemini-2.0-flash",
+                              model="gemini-2.5-flash",
                               messages=[
                                    {"role": "system", "content": SYSTEM_PROMPT},
                                     *st.session_state.messages,
