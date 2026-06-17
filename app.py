@@ -209,7 +209,162 @@ Email: yp8287@gmail.com
 Location: Toronto, Ontario, Greater Toronto Area
 """
 
+# ── FLOATING CHAT WIDGET ─────────────────────────────────────────────────────
+_api_key = st.secrets.get("API_KEY", "")
+_system  = SYSTEM_PROMPT.replace("`", "'").replace("\n", "\\n")
 
+st.markdown(f"""
+<style>
+#chat-bubble {{
+    position: fixed; bottom: 2rem; right: 2rem;
+    width: 58px; height: 58px;
+    background: linear-gradient(135deg, #00C9A7, #845EC2);
+    border-radius: 50%; border: none; cursor: pointer;
+    font-size: 1.5rem; display: flex; align-items: center;
+    justify-content: center; z-index: 9999;
+    box-shadow: 0 4px 20px rgba(0,201,167,0.45);
+    transition: transform 0.2s;
+}}
+#chat-bubble:hover {{ transform: scale(1.12); }}
+
+#chat-panel {{
+    position: fixed; bottom: 5.5rem; right: 2rem;
+    width: 340px; height: 480px;
+    background: #1A1D2E; border: 1px solid #2D3047;
+    border-radius: 16px; z-index: 9998;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.55);
+    display: none; flex-direction: column; overflow: hidden;
+}}
+#chat-panel.open {{ display: flex; }}
+
+#chat-header {{
+    background: linear-gradient(135deg, #00C9A7, #845EC2);
+    padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem;
+    color: #0F1117; display: flex;
+    justify-content: space-between; align-items: center;
+}}
+#chat-close {{
+    background: none; border: none; cursor: pointer;
+    font-size: 1rem; font-weight: 700; color: #0F1117;
+}}
+#chat-messages {{
+    flex: 1; overflow-y: auto; padding: 0.75rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+}}
+.cmsg {{
+    max-width: 88%; padding: 0.5rem 0.75rem;
+    border-radius: 12px; font-size: 0.82rem; line-height: 1.45;
+}}
+.cmsg.user {{
+    background: rgba(0,201,167,0.18); color: #E8EAED;
+    align-self: flex-end; border-bottom-right-radius: 3px;
+}}
+.cmsg.bot {{
+    background: #2D3047; color: #E8EAED;
+    align-self: flex-start; border-bottom-left-radius: 3px;
+}}
+.cmsg.thinking {{ background: #2D3047; color: #718096;
+    align-self: flex-start; font-style: italic; }}
+#chat-footer {{
+    padding: 0.6rem; border-top: 1px solid #2D3047;
+    display: flex; gap: 0.4rem;
+}}
+#chat-input {{
+    flex: 1; background: #0F1117; border: 1px solid #2D3047;
+    border-radius: 8px; color: #E8EAED;
+    padding: 0.4rem 0.65rem; font-size: 0.82rem; outline: none;
+}}
+#chat-input:focus {{ border-color: #00C9A7; }}
+#chat-send {{
+    background: #00C9A7; border: none; border-radius: 8px;
+    color: #0F1117; padding: 0.4rem 0.75rem;
+    cursor: pointer; font-weight: 700; font-size: 0.95rem;
+}}
+#chat-send:hover {{ background: #00b896; }}
+</style>
+
+<button id="chat-bubble" onclick="toggleFloatChat()">🤖</button>
+
+<div id="chat-panel">
+  <div id="chat-header">
+    <span>🧬 Ask Yash's AI</span>
+    <button id="chat-close" onclick="toggleFloatChat()">✕</button>
+  </div>
+  <div id="chat-messages">
+    <div class="cmsg bot">
+      Hi! I am Yash's AI assistant. Ask me anything about his background, projects, or experience.
+    </div>
+  </div>
+  <div id="chat-footer">
+    <input id="chat-input" type="text" placeholder="Ask a question..."
+           onkeydown="if(event.key==='Enter') floatSend()"/>
+    <button id="chat-send" onclick="floatSend()">➤</button>
+  </div>
+</div>
+
+<script>
+var floatHistory = [];
+var floatKey     = "{_api_key}";
+var floatSys     = `{_system}`;
+
+function toggleFloatChat() {{
+  var p = document.getElementById('chat-panel');
+  p.classList.toggle('open');
+  if (p.classList.contains('open'))
+    document.getElementById('chat-input').focus();
+}}
+
+function floatAddMsg(role, text) {{
+  var box = document.getElementById('chat-messages');
+  var d   = document.createElement('div');
+  d.className = 'cmsg ' + role;
+  d.textContent = text;
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+  return d;
+}}
+
+async function floatSend() {{
+  var inp  = document.getElementById('chat-input');
+  var text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+
+  floatAddMsg('user', text);
+  floatHistory.push({{role:'user', content:text}});
+  var thinking = floatAddMsg('thinking', 'Thinking...');
+
+  try {{
+    var res = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+      {{
+        method: 'POST',
+        headers: {{
+          'Content-Type':  'application/json',
+          'Authorization': 'Bearer ' + floatKey
+        }},
+        body: JSON.stringify({{
+          model: 'gemini-2.0-flash',
+          max_tokens: 400,
+          messages: [
+            {{role:'system', content: floatSys}},
+            ...floatHistory
+          ]
+        }})
+      }}
+    );
+    var data   = await res.json();
+    var answer = data.choices[0].message.content;
+    thinking.className   = 'cmsg bot';
+    thinking.textContent = answer;
+    floatHistory.push({{role:'assistant', content:answer}});
+  }} catch(e) {{
+    thinking.className   = 'cmsg bot';
+    thinking.textContent = 'Could not connect right now. Please try the Ask My AI tab above.';
+  }}
+}}
+</script>
+""", unsafe_allow_html=True)
 # ══════════════════════════════════════════════════════════════════════════════
 #  NAVIGATION
 # ══════════════════════════════════════════════════════════════════════════════
