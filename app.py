@@ -4,6 +4,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 from streamlit_option_menu import option_menu
+import streamlit.components.v1 as components
 
 # ── PAGE CONFIG ──────────────────────────────────────────────────────────────
 st.set_page_config(
