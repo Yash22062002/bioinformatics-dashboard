@@ -264,7 +264,7 @@ components.html(f"""
     btn.onclick = function() {{
       const url = new URL(window.parent.location.href);
       url.searchParams.set("page", "chat");
-      window.parent.location.href = url.toString();
+      window.parent.location.assign(url.toString());
     }};
     doc.body.appendChild(btn);
   }}
@@ -276,38 +276,54 @@ components.html(f"""
 #  NAVIGATION
 # ══════════════════════════════════════════════════════════════════════════════
 
-# Navigation state
+# ── PAGE ROUTING STATE ───────────────────────────────────────────────
 
+# Read query param safely
+page_param = st.query_params.get("page", "")
+if isinstance(page_param, list):
+    page_param = page_param[0] if page_param else ""
+
+# Initialize active tab once
+if "active_tab" not in st.session_state:
+    st.session_state.active_tab = "Ask My AI" if page_param == "chat" else "Home"
+
+# If URL says chat, force AI tab
 if page_param == "chat":
-    default_idx = 4
-else:
-    default_idx = 0
+    st.session_state.active_tab = "Ask My AI"
+# If URL not chat and tab is AI (stale), move to Home
+elif st.session_state.active_tab == "Ask My AI":
+    st.session_state.active_tab = "Home"
+
+menu_options = ["Home", "Projects", "Skills", "GitHub", "Ask My AI"]
+default_idx = menu_options.index(st.session_state.active_tab)
 
 selected = option_menu(
     menu_title=None,
-    options=["Home", "Projects", "Skills", "GitHub", "Ask My AI"],
+    options=menu_options,
     icons=["house-fill", "code-slash", "bar-chart-fill", "github", "robot"],
     orientation="horizontal",
     default_index=default_idx,
+    key="top_nav_menu",
     styles={
-        "container":    {"padding": "0.4rem 0", "background-color": "#1A1D2E",
-                         "border-radius": "12px", "margin-bottom": "2rem"},
-        "icon":         {"color": "#00C9A7", "font-size": "1rem"},
-        "nav-link":     {"font-size": "0.9rem", "color": "#A0AEC0",
-                         "padding": "0.5rem 1.2rem", "border-radius": "8px"},
+        "container": {"padding": "0.4rem 0", "background-color": "#1A1D2E",
+                      "border-radius": "12px", "margin-bottom": "2rem"},
+        "icon": {"color": "#00C9A7", "font-size": "1rem"},
+        "nav-link": {"font-size": "0.9rem", "color": "#A0AEC0",
+                     "padding": "0.5rem 1.2rem", "border-radius": "8px"},
         "nav-link-selected": {"background-color": "#00C9A7",
                               "color": "#0F1117", "font-weight": "700"},
     },
 )
 
-# Sync URL query param with selected tab
+# Persist the user selection
+st.session_state.active_tab = selected
+
+# Sync URL with selected tab
 if selected == "Ask My AI":
     st.query_params["page"] = "chat"
 else:
-    # Leaving AI page -> remove chat param so bubble can show
     if st.query_params.get("page", "") == "chat":
         st.query_params.clear()
-
 # ══════════════════════════════════════════════════════════════════════════════
 #  PAGE 1 — HOME
 # ══════════════════════════════════════════════════════════════════════════════
