@@ -212,126 +212,63 @@ Location: Toronto, Ontario, Greater Toronto Area
 
 # ── FLOATING CHAT WIDGET ───────────────────────────────────────────────
 
+# safer query param read
 page_param = st.query_params.get("page", "")
+if isinstance(page_param, list):
+    page_param = page_param[0] if page_param else ""
 
 components.html(f"""
 <script>
-
 (function(){{
+  const doc = window.parent.document;
+  const currentPage = "{page_param}";
 
-const doc = window.parent.document;
-
-const currentPage = "{page_param}";
-
-
-// Hide button on AI page
-if(currentPage === "chat"){{
-
+  // Remove bubble on chat page
+  if (currentPage === "chat") {{
     const existing = doc.getElementById("yash-chat-bubble");
-
-    if(existing){{
-        existing.remove();
-    }}
-
+    if (existing) existing.remove();
     return;
+  }}
 
-}}
-
-
-// CSS
-if(!doc.getElementById("yash-chat-style")){{
-
+  // Inject style once
+  if (!doc.getElementById("yash-chat-style")) {{
     const style = doc.createElement("style");
-
-    style.id="yash-chat-style";
-
+    style.id = "yash-chat-style";
     style.innerHTML = `
-
-    #yash-chat-bubble {{
-
-        position:fixed;
-
-        bottom:2rem;
-
-        right:2rem;
-
-        width:58px;
-
-        height:58px;
-
-        border-radius:50%;
-
-        border:none;
-
-        cursor:pointer;
-
-        font-size:1.5rem;
-
-        z-index:999999;
-
-        background:linear-gradient(135deg,#00C9A7,#845EC2);
-
-        box-shadow:0 4px 20px rgba(0,201,167,.45);
-
-    }}
-
-    #yash-chat-bubble:hover{{
-
-        transform:scale(1.1);
-
-    }}
-
+      #yash-chat-bubble {{
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        font-size: 1.5rem;
+        z-index: 999999;
+        background: linear-gradient(135deg,#00C9A7,#845EC2);
+        box-shadow: 0 4px 20px rgba(0,201,167,.45);
+      }}
+      #yash-chat-bubble:hover {{
+        transform: scale(1.1);
+      }}
     `;
-
-
     doc.head.appendChild(style);
+  }}
 
-}}
-
-
-
-// Create button only if missing
-
-if(!doc.getElementById("yash-chat-bubble")){{
-
-
+  // Create bubble once
+  if (!doc.getElementById("yash-chat-bubble")) {{
     const btn = doc.createElement("button");
-
-    btn.id="yash-chat-bubble";
-
-    btn.innerHTML="🤖";
-
-
-    btn.onclick=function(){{
-
-
-        const url = new URL(
-            window.parent.location.href
-        );
-
-
-        url.searchParams.set(
-            "page",
-            "chat"
-        );
-
-
-        window.parent.location.href=url.toString();
-
-
+    btn.id = "yash-chat-bubble";
+    btn.innerHTML = "🤖";
+    btn.onclick = function() {{
+      const url = new URL(window.parent.location.href);
+      url.searchParams.set("page", "chat");
+      window.parent.location.href = url.toString();
     }};
-
-
-
     doc.body.appendChild(btn);
-
-
-}}
-
-
-
+  }}
 }})();
-
 </script>
 """, height=0)
 
@@ -363,8 +300,13 @@ selected = option_menu(
     },
 )
 
-if page_param == "chat":
+# Sync URL query param with selected tab
+if selected == "Ask My AI":
     st.query_params["page"] = "chat"
+else:
+    # Leaving AI page -> remove chat param so bubble can show
+    if st.query_params.get("page", "") == "chat":
+        st.query_params.clear()
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  PAGE 1 — HOME
