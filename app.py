@@ -212,17 +212,34 @@ Location: Toronto, Ontario, Greater Toronto Area
 
 # ── FLOATING CHAT WIDGET ───────────────────────────────────────────────
 
-components.html("""
+page_param = st.query_params.get("page", "")
+
+components.html(f"""
 <script>
 
-(function(){
+(function(){{
 
 const doc = window.parent.document;
 
+const currentPage = "{page_param}";
 
-// Inject CSS only once
 
-if(!doc.getElementById("yash-chat-style")){
+// Hide button on AI page
+if(currentPage === "chat"){{
+
+    const existing = doc.getElementById("yash-chat-bubble");
+
+    if(existing){{
+        existing.remove();
+    }}
+
+    return;
+
+}}
+
+
+// CSS
+if(!doc.getElementById("yash-chat-style")){{
 
     const style = doc.createElement("style");
 
@@ -230,7 +247,7 @@ if(!doc.getElementById("yash-chat-style")){
 
     style.innerHTML = `
 
-    #yash-chat-bubble {
+    #yash-chat-bubble {{
 
         position:fixed;
 
@@ -256,26 +273,26 @@ if(!doc.getElementById("yash-chat-style")){
 
         box-shadow:0 4px 20px rgba(0,201,167,.45);
 
-    }
+    }}
 
-
-    #yash-chat-bubble:hover{
+    #yash-chat-bubble:hover{{
 
         transform:scale(1.1);
 
-    }
+    }}
 
     `;
 
+
     doc.head.appendChild(style);
 
-}
+}}
 
 
 
-// Create button only once
+// Create button only if missing
 
-if(!doc.getElementById("yash-chat-bubble")){
+if(!doc.getElementById("yash-chat-bubble")){{
 
 
     const btn = doc.createElement("button");
@@ -285,66 +302,44 @@ if(!doc.getElementById("yash-chat-bubble")){
     btn.innerHTML="🤖";
 
 
+    btn.onclick=function(){{
+
+
+        const url = new URL(
+            window.parent.location.href
+        );
+
+
+        url.searchParams.set(
+            "page",
+            "chat"
+        );
+
+
+        window.parent.location.href=url.toString();
+
+
+    }};
+
+
+
     doc.body.appendChild(btn);
 
-}
+
+}}
 
 
 
-// Remove previous listener if exists
-
-if(!doc.body.dataset.chatListener){
-
-
-    doc.body.addEventListener(
-        "click",
-        function(e){
-
-
-            if(e.target.id==="yash-chat-bubble"){
-
-
-                const url = new URL(
-                    window.parent.location.href
-                );
-
-
-                url.searchParams.set(
-                    "page",
-                    "chat"
-                );
-
-
-                window.parent.location.href =
-                    url.toString();
-
-
-            }
-
-
-        }
-    );
-
-
-    doc.body.dataset.chatListener="true";
-
-
-}
-
-
-
-})();
-
+}})();
 
 </script>
 """, height=0)
+
 # ══════════════════════════════════════════════════════════════════════════════
 #  NAVIGATION
 # ══════════════════════════════════════════════════════════════════════════════
 
-# Navigate to Ask My AI if the floating button was clicked
-# Navigate to Ask My AI only when button is clicked
-page_param = st.query_params.get("page", "")
+# Navigation state
 
 if page_param == "chat":
     default_idx = 4
@@ -369,7 +364,7 @@ selected = option_menu(
 )
 
 if page_param == "chat":
-    st.query_params.clear()
+    st.query_params["page"] = "chat"
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  PAGE 1 — HOME
