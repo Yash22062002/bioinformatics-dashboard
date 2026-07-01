@@ -842,7 +842,7 @@ elif selected == "Ask My AI":
                     from openai import OpenAI
                     client = OpenAI(
                         api_key=api_key,
-                        base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+                        base_url="https://api.anthropic.com/v1/",
                     )
                     response = client.chat.completions.create(
                         model="claude-haiku-4-5-20251001",
